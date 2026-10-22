@@ -21,3 +21,7 @@ html[data-theme] button.danger{color:#d34f56;border-color:#d34f56}html[data-them
 
 /* PDF figure hit targets must never cover the underlying scientific image. */
 html[data-theme] .figure-hotspot,html[data-theme] .figure-hotspot:hover,html[data-theme] .figure-hotspot:focus-visible{background:transparent!important;box-shadow:none}
+
+/* Attribution badge background; keep the normal theme text color. */
+html[data-theme] .tag.author{background:#ffe2b6!important}
+html[data-theme=dark] .tag.author{background:#6d4522!important}

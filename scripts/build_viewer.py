@@ -45,6 +45,19 @@ def validate_card(card,page_count):
             require(p.get('layer') in ('author','analysis'),'invalid paragraph layer')
             require(isinstance(p.get('refs'),list) and all(x in ids for x in p['refs']),'paragraph refs must name existing annotations')
             warnings += ['Ignored paragraph field: '+key for key in p if key not in {'title','text','layer','refs'}]
+    layers={p['layer'] for step in card['steps'] for p in step['paragraphs']}
+    # Full deep readings must separate reported claims from the reader's analysis.
+    # Old cards remain readable but receive a visible build warning.
+    if layers!={'author','analysis'}:
+        message='Full reading must distinguish author reports and AI analysis in paragraphs'
+        if card['schema']=='paper-reading-workbench/v1':require(False,message)
+        warnings.append(message+'; legacy card retained')
+    metadata={norm(str(card['paper'].get(k,''))) for k in ('title','authors','doi')}-set([''])
+    for a in card['annotations']:
+        if norm(a['quote']) in metadata:
+            message=a['id']+': metadata-only quote is not reading evidence; keep title/authors/DOI in paper metadata'
+            if card['schema']=='paper-reading-workbench/v1':require(False,message)
+            warnings.append(message+'; legacy card retained')
     return warnings
 
 def locate_details(page,quote,legacy=False):
@@ -197,7 +210,7 @@ def build(pdf,cardpath,out,legacy_ligatures='auto',gallery=None,rscript=None):
     template=template.replace('/*__EXPORT_CODE__*/',(assets/'export-pdf.js').read_text(encoding='utf-8'))
     data=json.dumps(payload,ensure_ascii=False).replace('<','\\u003c').replace('\u2028','\\u2028').replace('\u2029','\\u2029')
     (out/'index.html').write_text(template.replace('/*__PAYLOAD__*/',data),encoding='utf-8')
-    result={'pages':len(doc),'annotations':len(records),'matched':sum(x['status']=='matched' for x in records),'unresolved':[x for x in records if x['status']!='matched'],'anchors':records,'source_sha256':sha,'page_map':page_map,'legacy_ligatures':{'mode':legacy_ligatures,'enabled':legacy_enabled,'symbols_seen':seen},'warnings':warnings}
+    result={'pages':len(doc),'annotations':len(records),'matched':sum(x['status']=='matched' for x in records),'unresolved':[x for x in records if x['status']!='matched'],'anchors':records,'source_sha256':sha,'page_map':page_map,'legacy_ligatures':{'mode':legacy_ligatures,'enabled':legacy_enabled,'symbols_seen':seen},'warnings':warnings,'attribution_counts':{layer:sum(p['layer']==layer for step in card['steps'] for p in step['paragraphs']) for layer in ('author','analysis')}}
     (out/'build-report.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
     print(json.dumps({k:v for k,v in result.items() if k not in ('anchors','page_map')},ensure_ascii=False))
 

@@ -11,7 +11,7 @@ class DeleteResults(unittest.TestCase):
   self.tmp=tempfile.TemporaryDirectory();self.p=Path(self.tmp.name);self.root=self.p/'library';self.bin=self.p/'mock-system-bin';self.bin.mkdir()
   self.pdf=self.p/'fixture.pdf';d=fitz.open();pg=d.new_page();pg.draw_rect(fitz.Rect(50,90,400,300));pg.insert_text((55,320),'Figure 1. Synthetic figure context for source links.');d.save(self.pdf);d.close()
   self.sha=lib.digest(self.pdf);r=self.p/'result';r.mkdir()
-  c={'schema':'paper-reading-workbench/v1','paper':{'title':'Fixture'},'summary':'Full reading summary','annotations':[],'steps':[{'id':i,'title':str(i),'paragraphs':[{'title':'Title','text':'Secret reading prose','layer':'analysis','refs':[]}]} for i in range(1,6)]}
+  c={'schema':'paper-reading-workbench/v1','paper':{'title':'Fixture'},'summary':'Full reading summary','annotations':[],'steps':[{'id':i,'title':str(i),'paragraphs':[{'title':'Title','text':'Secret reading prose','layer':'author' if i<4 else 'analysis','refs':[]}]} for i in range(1,6)]}
   cp=self.p/'reading.json';cp.write_text(json.dumps(c));build(self.pdf,cp,r)
   g={'paper':{'title':'Fixture','source_pdf':str(self.pdf),'sha256':self.sha},'reading_record':'paper-card.md','figures':[{'id':'F1','label':'Figure 1','page':1,'bbox':[50,90,400,300],'interpretation':'Figure context','context':[{'page':1,'quote':'Synthetic figure context for source links','role':'caption'}]}]}
   (r/'gallery-manifest.json').write_text(json.dumps(g));(r/'gallery.html').write_text('<body><script id="data">{"reader":"index.html"}</script></body>');(r/'gallery-report.json').write_text(json.dumps({'source_sha256':self.sha}));(r/'F1').mkdir();(r/'F1/data.csv').write_text('x,y\n1,2')

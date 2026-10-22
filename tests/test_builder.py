@@ -15,7 +15,7 @@ b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
 
 def card():
     return {'schema':'paper-reading-workbench/v1','paper':{'title':'Synthetic test','authors':'Test'},'summary':'测试',
-            'steps':[{'id':i,'title':f'步骤{i}','paragraphs':[{'title':'正文','text':'保留事实。','layer':'author','refs':['E01']}]} for i in range(1,6)],
+            'steps':[{'id':i,'title':f'步骤{i}','paragraphs':[{'title':'正文','text':'保留事实。','layer':'author' if i<4 else 'analysis','refs':['E01']}]} for i in range(1,6)],
             'annotations':[{'id':'E01','step':1,'page':1,'title':'证据','quote':'This is a unique sentence for evidence matching.','explanation':'中文解释','layer':'author'}]}
 
 class FakePage:
@@ -62,6 +62,29 @@ class Validation(unittest.TestCase):
     def test_unknown_field_warns(self):
         c=card();c['steps'][0]['paragraphs'][0]['callout']='extra'
         self.assertIn('Ignored paragraph field: callout',b.validate_card(c,1))
+
+    def test_all_analysis_rejected_for_new_card(self):
+        c=card()
+        for step in c['steps']:
+            for p in step['paragraphs']:p['layer']='analysis'
+        with self.assertRaisesRegex(ValueError,'distinguish author'):b.validate_card(c,1)
+    def test_all_author_rejected_for_new_card(self):
+        c=card()
+        for step in c['steps']:
+            for p in step['paragraphs']:p['layer']='author'
+        with self.assertRaisesRegex(ValueError,'distinguish author'):b.validate_card(c,1)
+    def test_title_only_annotation_rejected(self):
+        c=card();c['annotations'][0]['quote']=c['paper']['title']
+        with self.assertRaisesRegex(ValueError,'metadata-only'):b.validate_card(c,1)
+    def test_author_and_doi_only_annotations_rejected(self):
+        for name,value in [('authors','An Author Name'),('doi','10.1234/example')]:
+            c=card();c['paper'][name]=value;c['annotations'][0]['quote']=value
+            with self.assertRaisesRegex(ValueError,'metadata-only'):b.validate_card(c,1)
+    def test_legacy_attribution_warning_without_rewriting(self):
+        c=card();c['schema']='jzks-pdf-viewer/v1'
+        for step in c['steps']:
+            for p in step['paragraphs']:p['layer']='analysis'
+        before=copy.deepcopy(c);warnings=b.validate_card(c,1);self.assertTrue(any('legacy card' in w for w in warnings));self.assertEqual(c,before)
 
 class Output(unittest.TestCase):
     def build(self,c):
