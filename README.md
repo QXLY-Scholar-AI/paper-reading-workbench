@@ -2,7 +2,7 @@
 
 在 Codex 中读论文，在本地网页中对照原文、查看插图和整理引用。AI 负责阅读与写作；网页用于浏览结果、批注和保存材料，不另行调用模型。
  
-Skill 名称：`paper-reading-workbench`；曾用名：`jzks-pdf-viewer`。本包为 2026-10-22 本地扩展版，不代表上游 GitHub 已发布这些改动。
+项目曾用名：`jzks-pdf-viewer`。
 
 ## 从哪里开始
 
