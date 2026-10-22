@@ -1,0 +1,14 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert'),path=require('path');
+const text=fs.readFileSync(path.join(__dirname,'../assets/viewer.html'),'utf8');
+const code=text.slice(text.indexOf('function locationTarget('),text.indexOf('function applySourceLocation('));
+const c=vm.createContext({URLSearchParams});vm.runInContext(code,c);
+assert.strictEqual(vm.runInContext("locationTarget('#page=19',[],41).page",c),19);
+assert.strictEqual(vm.runInContext("locationTarget('#page=99',[],41)",c),null);
+assert.strictEqual(vm.runInContext("locationTarget('#page=2.5',[],41)",c),null);
+assert.strictEqual(vm.runInContext("locationTarget('#page=1&annotation=GC-F2-1',[{id:'GC-F2-1',page:19}],41).page",c),19);
+assert(text.includes("toast('请先完成插图分析')"));
+assert(text.includes("'gallery.html#figure='+encodeURIComponent(f.id)"));
+const g=fs.readFileSync(path.join(__dirname,'../assets/gallery.html'),'utf8');
+assert(g.includes('annotation=GC-${esc(f.id)}-${i}'));
+assert(g.includes('openLinkedFigure()'));
+console.log('PASS: source page/annotation targets, invalid page handling, gallery deep links and missing-analysis reminder. Browser rendering not checked.');

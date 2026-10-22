@@ -1,0 +1,14 @@
+{
+  "repository": "https://github.com/QXLY-Scholar-AI/academic-writing-zh",
+  "commit": "c7071b7f7d1eb1a3c71ddeb914bbeaf523f79f20",
+  "downloaded": "2026-10-22",
+  "files_sha256": {
+    "README.md": "457aba93cec75fb28e8c933a59db6c8ce0486bcce7499a044323b58855adc614",
+    "SKILL.md": "e62648d8bdb4f2312201df889bcacfa783586045877771d69fceb9037d29890e",
+    "安装说明.md": "1a138bee3eef51469442e3c8c729e78663e29740aee48c7e912986a5113ad23f",
+    "references/evidence-and-analysis.md": "7ac2f7f3b83bb1ea735bfc27a71468e1e5dde8a480dc50d61d9253f2ec74beb0",
+    "references/manuscript-writing.md": "575824e83d3ff4eb3edb832d0319cdf879e1b67450cc95d708c59120d45e84e7",
+    "references/research-design.md": "e63ee7f8156e7cd5ee43a0b33920cbc3c8f80e5b44dbfcec34c5b4315bfca119",
+    "references/revision-and-submission.md": "698cf8533f66ef46496bdf1b6824aa22362d8679e24fab26b1139a96513a3561"
+  }
+}

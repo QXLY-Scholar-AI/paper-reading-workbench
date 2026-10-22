@@ -82,11 +82,19 @@ def markdown(card):
             out+=['### '+p['title'],'',f'[{tag}] '+p['text'],'','出处：'+refs,'']
     return '\n'.join(out)
 
-def build(pdf,cardpath,out,legacy_ligatures='auto'):
+def build(pdf,cardpath,out,legacy_ligatures='auto',gallery=None,rscript=None):
     pdf=Path(pdf);out=Path(out)
     raw=pdf.read_bytes();sha=hashlib.sha256(raw).hexdigest()
     doc=fitz.open(stream=raw,filetype='pdf')
     card=json.loads(Path(cardpath).read_text(encoding='utf-8-sig'))
+    if gallery:
+        gallery_card=json.loads(Path(gallery).read_text(encoding='utf-8-sig'))
+        if gallery_card['paper']['sha256']!=sha:raise ValueError('Gallery and reading PDF must match')
+        for f in gallery_card['figures']:
+            for i,c in enumerate(f['context']):
+                aid=f"GC-{f['id']}-{i}"
+                if not any(a['id']==aid for a in card['annotations']):
+                    card['annotations'].append({'id':aid,'page':c['page'],'step':3,'kind':'result','layer':'analysis','title':f['label']+' · '+c['role'],'quote':c['quote'],'explanation':f['interpretation']})
     warnings=validate_card(card,len(doc))
     out.mkdir(parents=True,exist_ok=True)
     text='\n'.join(page.get_text() for page in doc)
@@ -174,6 +182,17 @@ def build(pdf,cardpath,out,legacy_ligatures='auto'):
     payload={'card':card,'pages':pages,'markdown':md,'pdf':base64.b64encode(raw).decode(),'annotatedPdf':base64.b64encode((out/'annotated-paper.pdf').read_bytes()).decode()}
     assets=Path(__file__).resolve().parents[1]/'assets'
     template=(assets/'viewer.html').read_text(encoding='utf-8')
+    from page_theme import apply_theme
+    template=apply_theme(template)
+    from source_reader import figure_regions
+    payload['galleryLinks']=figure_regions(doc,json.loads(Path(gallery).read_text(encoding='utf-8-sig')) if gallery else None)
+    if gallery:
+        from figure_gallery import build as build_gallery
+        gallery_card=json.loads(Path(gallery).read_text(encoding='utf-8-sig'))
+        if gallery_card['paper']['sha256']!=sha:raise ValueError('Gallery and reading PDF must match')
+        build_gallery(gallery,out,rscript,reader='index.html')
+        template=template.replace('<!--__GALLERY_LINK__-->','<a href="gallery.html" target="_blank" style="padding:7px 10px;color:#356853">图表画廊 ↗</a>')
+    else:template=template.replace('<!--__GALLERY_LINK__-->','')
     template=template.replace('/*__PDFLIB__*/',(assets/'vendor/pdf-lib.min.js').read_text(encoding='utf-8').replace('</script','<\\/script'))
     template=template.replace('/*__EXPORT_CODE__*/',(assets/'export-pdf.js').read_text(encoding='utf-8'))
     data=json.dumps(payload,ensure_ascii=False).replace('<','\\u003c').replace('\u2028','\\u2028').replace('\u2029','\\u2029')
@@ -183,6 +202,6 @@ def build(pdf,cardpath,out,legacy_ligatures='auto'):
     print(json.dumps({k:v for k,v in result.items() if k not in ('anchors','page_map')},ensure_ascii=False))
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--pdf',required=True);p.add_argument('--card',required=True);p.add_argument('--out',required=True);p.add_argument('--legacy-ligatures',choices=['auto','on','off'],default='auto');a=p.parse_args()
-    try:build(a.pdf,a.card,a.out,a.legacy_ligatures)
+    p=argparse.ArgumentParser();p.add_argument('--pdf',required=True);p.add_argument('--card',required=True);p.add_argument('--out',required=True);p.add_argument('--legacy-ligatures',choices=['auto','on','off'],default='auto');p.add_argument('--gallery');p.add_argument('--rscript');a=p.parse_args()
+    try:build(a.pdf,a.card,a.out,a.legacy_ligatures,a.gallery,a.rscript)
     except (ValueError,KeyError,TypeError) as e:p.exit(2,str(e)+'\n')

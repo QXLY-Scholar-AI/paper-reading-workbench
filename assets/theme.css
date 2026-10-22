@@ -1,0 +1,23 @@
+html[data-theme]{--wb-bg:#f4f3f0;--wb-paper:#fffefa;--wb-ink:#303743;--wb-muted:#747982;--wb-line:#dedfdf;--wb-accent:#536882;--wb-pale:#edf0f4;--wb-code:#e9edf2;--wb-orange:#96520a;--wb-orange-bg:#fff3e1;--wb-red:#a73535;--wb-red-bg:#fff0ef;background:var(--wb-bg);color:var(--wb-ink)}
+html[data-theme=dark]{--wb-bg:#202329;--wb-paper:#292d34;--wb-ink:#e5e6e9;--wb-muted:#adb2bb;--wb-line:#434952;--wb-accent:#b2c2d8;--wb-pale:#343c48;--wb-code:#20252d;--wb-orange:#ffc278;--wb-orange-bg:#443321;--wb-red:#ffaaaa;--wb-red-bg:#422b2d}
+html[data-theme] body{background:var(--wb-bg);color:var(--wb-ink)}
+html[data-theme] header,html[data-theme] nav,html[data-theme] .left,html[data-theme] .tabs,html[data-theme] .card,html[data-theme] .tile,html[data-theme] .paper,html[data-theme] article,html[data-theme] .dialog,html[data-theme] .detailbar,html[data-theme] .note-card,html[data-theme] #bundle{background:var(--wb-paper);color:var(--wb-ink);border-color:var(--wb-line)}
+html[data-theme] .pane,html[data-theme] .comparison,html[data-theme] .thumb,html[data-theme] .toolbar,html[data-theme] .notes,html[data-theme] .filterbar,html[data-theme] blockquote,html[data-theme] .tag,html[data-theme] .summary,html[data-theme] .ref,html[data-theme] .detail-dialog,html[data-theme] .library-nav{background:var(--wb-pale)!important;color:var(--wb-ink)!important;border-color:var(--wb-line)}
+html[data-theme] a,html[data-theme] .body a{color:var(--wb-accent)}
+html[data-theme] .meta,html[data-theme] .mini,html[data-theme] .count,html[data-theme] .excerpt,html[data-theme] header p,html[data-theme] header small,html[data-theme] footer,html[data-theme] .pane strong,html[data-theme] .help,html[data-theme] .quote{color:var(--wb-muted)}
+html[data-theme] .body p,html[data-theme] .reading-block p{color:var(--wb-ink)}
+html[data-theme] button:not(.figure-hotspot),html[data-theme] input,html[data-theme] select,html[data-theme] textarea,html[data-theme] a.download,html[data-theme] dialog{background:var(--wb-paper);color:var(--wb-ink);border-color:var(--wb-line)}
+html[data-theme] button:not(.figure-hotspot):hover,html[data-theme] a.download:hover{background:var(--wb-pale)}
+html[data-theme] pre{background:var(--wb-code);color:var(--wb-ink)}
+html[data-theme] .reference-pending{border-left:4px solid var(--wb-orange);background:var(--wb-orange-bg)}
+html[data-theme] .pending-link,html[data-theme] .pending-message{color:var(--wb-orange)!important}
+html[data-theme] .pending-link{border:1px solid currentColor;border-radius:6px;padding:6px 10px;margin:5px 10px 5px 0}
+html[data-theme] .reference-missing{border-left:4px solid var(--wb-red);background:var(--wb-red-bg)}
+html[data-theme] .missing-message{color:var(--wb-red)}
+#workbench-theme-button{position:fixed;right:18px;bottom:18px;z-index:35;padding:10px 16px;border:1px solid var(--wb-line);border-radius:9px;box-shadow:0 2px 12px #0002;font:14px 'Microsoft YaHei',sans-serif;cursor:pointer;background:var(--wb-paper);color:var(--wb-ink)}
+html[data-theme] dialog[open] #workbench-theme-button{position:sticky;bottom:8px;float:right;z-index:30}
+@media print{#workbench-theme-button{display:none}}
+html[data-theme] button.danger{color:#d34f56;border-color:#d34f56}html[data-theme=dark] button.danger{color:#ff9198;border-color:#ff9198}html[data-theme] button.danger:hover{background:#d34f5615}
+
+/* PDF figure hit targets must never cover the underlying scientific image. */
+html[data-theme] .figure-hotspot,html[data-theme] .figure-hotspot:hover,html[data-theme] .figure-hotspot:focus-visible{background:transparent!important;box-shadow:none}

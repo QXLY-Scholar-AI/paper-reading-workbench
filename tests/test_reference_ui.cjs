@@ -1,0 +1,8 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert'),path=require('path');
+const text=fs.readFileSync(path.join(__dirname,'../assets/reference-links.html'),'utf8');
+const data={paper_title:'Fixture',references:[{number:1,citation:'Verified',status:'matched',links:[{url:'https://example.org/ok',type:'article',verified:true,evidence:'fixture'}]},{number:2,citation:'Access restricted',status:'uncertain',links:[],candidate_links:[{url:'https://example.org/login',type:'article',verified:false,evidence:'matched record'}]},{number:3,citation:'No information',status:'not_found',links:[]}]};
+const els={};function el(id){return els[id]??={value:'',textContent:'',innerHTML:'',hidden:true,select(){}}}el('data').textContent=JSON.stringify(data);let copied='';
+const c=vm.createContext({document:{getElementById:el,addEventListener(){}},navigator:{clipboard:{async writeText(s){copied=s}}}});vm.runInContext(text.split('<script>')[1].split('</script>')[0],c);
+assert(el('list').innerHTML.includes('class="reference-pending"'));assert(el('list').innerHTML.includes('class="reference-missing"'));assert(el('list').innerHTML.includes('https://example.org/login'));assert(el('list').innerHTML.includes('建议您先行确认'));
+el('filter').onclick();assert(!el('list').innerHTML.includes('No information'));assert(el('list').innerHTML.includes('Access restricted'));
+(async()=>{await el('copy').onclick();assert(copied.includes('[待用户确认]'));assert(copied.includes('https://example.org/login'));console.log('PASS: orange restricted links, red no-information entries, filtering and labeled copy.')})().catch(e=>{console.error(e);process.exitCode=1});

@@ -1,0 +1,6 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert'),path=require('path');
+const code=fs.readFileSync(path.join(__dirname,'../assets/theme.js'),'utf8');
+const items=[],storage=new Map([['paper-library-theme','dark']]),events={};
+function button(){return {style:{},setAttribute(){}}}const inline={append(b){items.push(b)}};
+const root={dataset:{},style:{}},c=vm.createContext({document:{documentElement:root,getElementById(){return null},createElement:button,body:{append(b){items.push(b)}},querySelectorAll(selector){assert(selector.includes('dialog:not(#delete-dialog)'));return [{querySelector(){return inline}}]}},localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},window:{addEventListener:(name,fn)=>events[name]=fn}});
+vm.runInContext(code,c);assert.strictEqual(root.dataset.theme,'dark');assert.strictEqual(items.length,2);items[1].onclick();assert.strictEqual(root.dataset.theme,'light');assert.strictEqual(storage.get('paper-library-theme'),'light');events.storage({key:'paper-library-theme',newValue:'dark'});assert.strictEqual(root.dataset.theme,'dark');assert(items.every(b=>b.textContent==='日间模式'));console.log('PASS: shared theme persistence, modal control and cross-tab change.');
